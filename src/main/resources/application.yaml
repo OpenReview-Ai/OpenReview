@@ -3,4 +3,196 @@ spring:
     name: openreview
 
   profiles:
-    active: ${PORT}
+    active: ${SPRING_PROFILE:dev}
+
+  # Load .env file before application starts
+  context:
+    initializer:
+      classes: com.openreview.config.DotenvLoader
+
+  # Database Configuration
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/openreview_ai}
+    username: ${DATABASE_USERNAME:openreview}
+    password: ${DATABASE_PASSWORD:devpassword}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+#
+#  # Flyway Configuration
+#  flyway:
+#    enabled: true
+#    baseline-on-migrate: true
+#    locations: classpath:db/migration
+#
+#  # Redis Configuration
+#  data:
+#    redis:
+#      host: ${REDIS_HOST:localhost}
+#      port: ${REDIS_PORT:6379}
+#      password: ${REDIS_PASSWORD:}
+#      timeout: 60000
+#      jedis:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: -1ms
+#
+#  # Cache Configuration
+#  cache:
+#    type: redis
+#    redis:
+#      time-to-live: 3600000 # 1 hour
+#      cache-null-values: false
+#
+#  # Jackson Configuration
+#  jackson:
+#    serialization:
+#      write-dates-as-timestamps: false
+#      indent-output: true
+#    deserialization:
+#      fail-on-unknown-properties: false
+#
+#  # Async Configuration
+#  task:
+#    execution:
+#      pool:
+#        core-size: 8
+#        max-size: 16
+#        queue-capacity: 100
+#      thread-name-prefix: review-async-
+
+# Server Configuration
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on-param
+  compression:
+    enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.openreview: ${LOG_LEVEL:DEBUG}
+    org.springframework.web: INFO
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:INFO}
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 30
+#
+## Actuator Configuration
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,metrics,prometheus
+#      base-path: /actuator
+#  endpoint:
+#    health:
+#      show-details: when-authorized
+#  metrics:
+#    export:
+#      prometheus:
+#        enabled: true
+#  health:
+#    redis:
+#      enabled: true
+#
+## Application Configuration
+#app:
+#  # GitHub Configuration
+#  github:
+#    webhook-secret: ${GITHUB_WEBHOOK_SECRET}
+#    token: ${GITHUB_TOKEN}
+#    app-id: ${GITHUB_APP_ID:}
+#    private-key: ${GITHUB_PRIVATE_KEY:}
+#    installation-id: ${GITHUB_INSTALLATION_ID:}
+#    api:
+#      base-url: https://api.github.com
+#      timeout: 30000
+#      max-retries: 3
+#
+#  # Ollama Configuration
+#  ollama:
+#    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+#    model: ${OLLAMA_MODEL:codellama:13b}
+#    timeout: ${OLLAMA_TIMEOUT:120000}
+#    max-tokens: 2048
+#    temperature: 0.2
+#    top-p: 0.9
+#    top-k: 40
+#    max-retries: 3
+#    retry-delay: 1000
+#
+#  # Review Configuration
+#  review:
+#    default-mode: ${DEFAULT_MODE:beginner}
+#    max-files-per-review: ${MAX_FILES_PER_REVIEW:50}
+#    timeout: ${REVIEW_TIMEOUT:300000}
+#    max-findings-per-file: 10
+#    ignored-extensions:
+#      - .json
+#      - .md
+#      - .txt
+#      - .yml
+#      - .yaml
+#      - .lock
+#      - .svg
+#      - .png
+#      - .jpg
+#      - .gif
+#    ignored-paths:
+#      - node_modules/
+#      - dist/
+#      - build/
+#      - .git/
+#      - coverage/
+#      - __tests__/
+#      - .test.
+#      - .spec.
+#
+#  # Queue Configuration
+#  queue:
+#    enabled: ${ENABLE_QUEUE:true}
+#    max-concurrent-reviews: 5
+#    retry-attempts: 3
+#    retry-delay: 5000
+#
+#  # Cache Configuration
+#  cache:
+#    enabled: ${ENABLE_CACHING:true}
+#    ttl: 3600 # seconds
+#
+#  # Rate Limiting
+#  rate-limit:
+#    enabled: true
+#    window-ms: ${RATE_LIMIT_WINDOW_MS:900000}
+#    max-requests: ${RATE_LIMIT_MAX_REQUESTS:100}
