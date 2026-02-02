@@ -28,7 +28,7 @@ public class UserSettings {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private String user;
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

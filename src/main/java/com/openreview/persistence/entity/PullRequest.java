@@ -60,7 +60,7 @@ public class PullRequest {
     @Builder.Default
     private Integer filesChanged = 0;
 
-    @OneToMany(mappedBy = "pull_request", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "pullRequest", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
