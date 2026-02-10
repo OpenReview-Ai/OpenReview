@@ -27,7 +27,6 @@ GitHub Push → Webhook → Spring Boot → Ollama (LLM) → Review Comment
 - Ollama - Local LLM runtime
 - DeepSeek-Coder-6.7B - Code review model
 - GitHub API - Fetch diffs & post comments
-- Docker Compose - Simplified deployment
 
 ## Quick Start
 
