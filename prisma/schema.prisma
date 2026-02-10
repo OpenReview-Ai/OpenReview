@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Repository {
+  id             String        @id @default(uuid()) @db.Uuid
+  owner          String
+  name           String
+  full_name      String        @unique
+  webhook_secret String?
+  is_active      Boolean       @default(true)
+  created_at     DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime      @default(now()) @db.Timestamptz(6)
+
+  code_reviews   CodeReview[]
+
+  @@index([full_name], name: "idx_repositories_full_name")
+  @@map("repositories")
+}
+
+model CodeReview {
+  id                String     @id @default(uuid()) @db.Uuid
+  repository_id     String     @db.Uuid
+  commit_sha        String
+  commit_message    String?
+  commit_author     String?
+  file_path         String
+  review_comment    String
+  code_diff         String?
+  github_comment_id BigInt?
+  status            String     @default("pending")
+  created_at        DateTime   @default(now()) @db.Timestamptz(6)
+
+  repository        Repository @relation(fields: [repository_id], references: [id], onDelete: Cascade)
+
+  @@index([repository_id], name: "idx_code_reviews_repository_id")
+  @@index([commit_sha], name: "idx_code_reviews_commit_sha")
+  @@index([created_at(sort: Desc)], name: "idx_code_reviews_created_at")
+  @@map("code_reviews")
+}
