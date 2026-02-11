@@ -1,99 +1,118 @@
 # OpenReview
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-orange?style=for-the-badge)
 
-**AI-powered code reviewer that teaches while it reviews**
+**AI powered code reviewer that teaches while it reviews**
 
-OpenReview automatically reviews your code commits using local AI models, providing intelligent feedback directly in your pull requests—no cloud services required.
+OpenReview connects your GitHub repository with a local LLM (via Ollama) to automatically review code commits, providing intelligent feedback without sending your code to external cloud AI providers.
 
 ## Features
 
-- **Local AI Reviews** - Powered by Open Source LLM running on Ollama
-- **Privacy First** - All processing happens on your machine
-- **Instant Feedback** - Automated reviews on every commit
-- **GitHub Integration** - Seamless webhook based workflow
-- **One-Command Setup** - Docker Compose handles everything
-- **100% Open Source** - No API costs, no vendor lock in
+- **Automated Reviews**: Triggers on `git push` events via GitHub Webhooks.
+- **Local Intelligence**: URL and Model configuration for Ollama.
+- **Database Integration**: Stores repositories and review history using PostgreSQL and Prisma.
+- **Privacy Focused**: Your code stays local (or on your private server) and is processed by your own LLM instance.
 
-## Architecture
-```
-GitHub Push → Webhook → Spring Boot → Ollama (LLM) → Review Comment
-```
+## Tech Stack
 
-**Stack:**
-- Spring Boot 4.0.2 - Webhook receiver & orchestration
-- Ollama - Local LLM runtime
-- DeepSeek-Coder-6.7B - Code review model
-- GitHub API - Fetch diffs & post comments
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **AI Engine**: Ollama (DeepSeek Coder, Llama 3, etc.)
 
-## Quick Start
+## Prerequisites
 
-### Prerequisites
+- **Node.js** (v18+ recommended)
+- **PostgreSQL** database
+- **Ollama** running locally or accessible via network
+- **ngrok** (optional, for exposing local server to GitHub webhooks during development)
 
-- Docker & Docker Compose
-- GitHub account with admin access to a repository
-- 8GB+ RAM (for running DeepSeek model)
+## Installation
 
-### Installation
+1.  **Clone the repository**
 
-1. **Clone the repository**
-```bash
-   git clone https://github.com/yourusername/openreview.git
-   cd openreview
-```
+    ```bash
+    git clone https://github.com/yourusername/openreview.git
+    cd openreview
+    ```
 
-2. **Configure environment variables**
-```bash
-   cp .env.example .env
-```
+2.  **Install dependencies**
 
-Edit `.env` and set:
-```properties
-   GITHUB_TOKEN=ghp_your_github_personal_access_token
-   WEBHOOK_SECRET=your_random_secret_string
-```
+    ```bash
+    npm install
+    ```
 
-3. **Start the services**
-```bash
-   docker-compose up -d
-```
+3.  **Configure Environment**
+    Copy `.env.example` to `.env` and fill in your details:
 
-4. **Pull the AI model** (first time only - ~4GB download)
-```bash
-   docker exec openreview-ollama ollama pull deepseek-coder:6.7b
-```
+    ```bash
+    cp .env.example .env
+    ```
 
-5. **Configure GitHub webhook**
+    Edit `.env`:
+    - `PORT`: Server port (default 3000)
+    - `DATABASE_URL`: Your PostgreSQL connection string.
+    - `GITHUB_TOKEN`: GitHub Personal Access Token.
+    - `GITHUB_WEBHOOK_SECRET`: Secret key for verifying webhook signatures.
+    - `OLLAMA_BASE_URL`: URL of your Ollama instance (default `http://localhost:11434`).
+    - `OLLAMA_MODEL`: Model model tag to use (default `deepseek-coder:6.7b`).
 
-   In your GitHub repository:
-    - Go to **Settings → Webhooks → Add webhook**
-    - **Payload URL**: `http://your-server-ip:8080/api/webhook`
-    - **Content type**: `application/json`
-    - **Secret**: (same as `WEBHOOK_SECRET` in `.env`)
-    - **Events**: Select "Pull requests" and "Pushes"
-
-### Verify Installation
-```bash
-# Check service health
-curl http://localhost:8080/actuator/health
-
-# Check Ollama
-curl http://localhost:11434/api/tags
-```
+4.  **Database Setup**
+    Run Prisma migrations to create the database schema:
+    ```bash
+    npx prisma migrate dev
+    ```
 
 ## Usage
 
-Once configured, OpenReview works automatically:
+### Development Server
 
-1. Create a pull request or push commits to your repository
-2. OpenReview receives the webhook notification
-3. Fetches the code diff from GitHub
-4. Sends it to LLM for analysis
-5. Posts review comments directly on your PR
+Run the application in watch mode:
 
-### Example Review Comment
+```bash
+npm run dev
+```
+
+### Production Build
+
+Build and start the application:
+
+```bash
+npm run build
+npm start
+```
+
+### Creating a GitHub Token
+
+1. Go to **GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)**
+2. Click **Generate new token (classic)**
+3. Select scopes:
+   - `repo` (Full control of private repositories)
+   - `write:discussion` (for PR comments)
+4. Generate and copy the token
+
+### Setting up Webhooks
+
+1.  Expose your local server using ngrok: `ngrok http 3000`.
+2.  Go to your GitHub Repository -> Settings -> Webhooks.
+3.  Add a new webhook:
+    - **Payload URL**: `https://your-ngrok-url.ngrok-free.app/webhook/github`
+    - **Content type**: `application/json`
+    - **Secret**: The `GITHUB_WEBHOOK_SECRET` from your `.env`.
+    - **Events**: Select "Push".
+
+## API Endpoints
+
+- `GET /health`: Health check endpoint.
+- `POST /webhook/github`: Endpoint for receiving GitHub push events.
+
+## Example Review Comment
+
 ```
 OpenReview Analysis
 
@@ -109,76 +128,6 @@ OpenReview Analysis
 No obvious security vulnerabilities detected
 ```
 
-## Configuration
-
-### Application Settings (`application.yml`)
-```yaml
-github:
-  token: ${GITHUB_TOKEN}
-  webhook-secret: ${WEBHOOK_SECRET}
-
-ollama:
-  url: http://ollama:11434
-  model: deepseek-coder:6.7b
-  timeout: 60s
-
-review:
-  max-diff-size: 10000  # Skip files larger than this
-  excluded-paths:
-    - "*.lock"
-    - "package-lock.json"
-    - "yarn.lock"
-```
-
-### Creating a GitHub Token
-
-1. Go to **GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)**
-2. Click **Generate new token (classic)**
-3. Select scopes:
-    - `repo` (Full control of private repositories)
-    - `write:discussion` (for PR comments)
-4. Generate and copy the token
-
-## Development
-
-### Project Structure
-```
-openreview/
-├── src/main/java/com/openreview/
-│   ├── OpenReviewApplication.java
-│   ├── controller/
-│   │   └── WebhookController.java      # Handles GitHub webhooks
-│   ├── service/
-│   │   ├── GitHubService.java          # GitHub API integration
-│   │   ├── OllamaService.java          # Ollama LLM communication
-│   │   └── ReviewService.java          # Review orchestration
-│   ├── model/
-│   │   ├── WebhookPayload.java
-│   │   └── ReviewResult.java
-│   └── config/
-│       └── GitHubConfig.java
-├── docker-compose.yml
-├── Dockerfile
-└── README.md
-```
-
-### Running Locally (Without Docker)
-```bash
-# Terminal 1: Start Ollama
-ollama serve
-
-# Terminal 2: Pull model
-ollama pull deepseek-coder:6.7b
-
-# Terminal 3: Run Spring Boot
-./mvnw spring-boot:run
-```
-
-### Running Tests
-```bash
-./mvnw test
-```
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -189,13 +138,6 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Guidelines
+## License
 
-- Follow Java code conventions
-- Write tests for new features
-- Update documentation as needed
-- Keep commits atomic and well-described
-
----
-
-**If you find OpenReview useful, please consider giving it a star!**
+MIT
