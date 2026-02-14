@@ -1,13 +1,13 @@
 import axios from "axios";
-import { config } from "../configs/envConfig";
+import { env } from "../configs/envConfig";
 
 export class OllamaService {
   private baseUrl: string;
   private model: string;
 
   constructor() {
-    this.baseUrl = config.ollama.baseUrl;
-    this.model = config.ollama.model;
+    this.baseUrl = env.OLLAMA_BASE_URL;
+    this.model = env.OLLAMA_MODEL;
   }
 
   async generateCodeReview(diff: string, filename: string): Promise<string> {
