@@ -1,5 +1,5 @@
 import axios from "axios";
-import { config } from "../configs/envConfig";
+import { env } from "../configs/envConfig";
 import { FileDiff } from "../types/types";
 
 export class GitHubService {
@@ -7,7 +7,7 @@ export class GitHubService {
   private baseUrl = "https://api.github.com";
 
   constructor() {
-    this.token = config.github.token;
+    this.token = env.GITHUB_TOKEN;
   }
 
   async getCommitDiff(
