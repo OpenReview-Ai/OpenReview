@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import { config, validateConfig } from "./config";
+import { config, validateConfig } from "./configs/envConfig";
 import webhookRoutes from "./routes/webhook.routes";
 import healthRoutes from "./routes/health.routes";
 

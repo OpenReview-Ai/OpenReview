@@ -1,5 +1,5 @@
 import axios from "axios";
-import { config } from "../config";
+import { config } from "../configs/envConfig";
 import { FileDiff } from "../types/types";
 
 export class GitHubService {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { config } from "../config";
+import { config } from "../configs/envConfig";
 
 export class OllamaService {
   private baseUrl: string;
