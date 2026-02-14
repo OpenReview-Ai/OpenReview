@@ -1,3 +1,12 @@
+export interface EnvConfig {
+  PORT: number;
+  DATABASE_URL: string;
+  GITHUB_TOKEN: string;
+  GITHUB_WEBHOOK_SECRET: string;
+  OLLAMA_BASE_URL: string;
+  OLLAMA_MODEL: string;
+}
+
 export interface Repository {
   id: string;
   owner: string;
