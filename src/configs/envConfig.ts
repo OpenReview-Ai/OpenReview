@@ -1,27 +1,21 @@
 import dotenv from "dotenv";
+import { EnvConfig } from "../types/types";
 
 dotenv.config();
 
-export const config = {
-  port: process.env.PORT || 3000,
-
-  github: {
-    token: process.env.GITHUB_TOKEN || "",
-    webhookSecret: process.env.GITHUB_WEBHOOK_SECRET || "",
-  },
-
-  ollama: {
-    baseUrl: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
-    model: process.env.OLLAMA_MODEL || "deepseek-coder:6.7b",
-  },
-};
-
-export function validateConfig(): string[] {
-  const errors: string[] = [];
-
-  if (!config.github.token) {
-    errors.push("GITHUB_TOKEN is required");
+function getEnvVariable(key: any, required = true): any {
+  const value = process.env[key];
+  if (!value && required) {
+    throw new Error(`Missing environment variable: ${key}`);
   }
-
-  return errors;
+  return value as string;
 }
+
+export const env: EnvConfig = {
+  PORT: getEnvVariable("PORT"),
+  DATABASE_URL: getEnvVariable("DATABASE_URL"),
+  GITHUB_TOKEN: getEnvVariable("GITHUB_TOKEN"),
+  GITHUB_WEBHOOK_SECRET: getEnvVariable("GITHUB_WEBHOOK_SECRET"),
+  OLLAMA_BASE_URL: getEnvVariable("OLLAMA_BASE_URL"),
+  OLLAMA_MODEL: getEnvVariable("OLLAMA_MODEL"),
+};

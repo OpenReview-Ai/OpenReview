@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import { config, validateConfig } from "./configs/envConfig";
+import { env } from "./configs/envConfig";
 import webhookRoutes from "./routes/webhook.routes";
 import healthRoutes from "./routes/health.routes";
 
@@ -11,18 +11,7 @@ app.use(healthRoutes);
 app.use(webhookRoutes);
 
 function startServer() {
-  const configErrors = validateConfig();
-
-  if (configErrors.length > 0) {
-    console.error("Configuration errors:");
-    configErrors.forEach((error) => console.error(`  - ${error}`));
-    console.error(
-      "\nPlease check your .env file and ensure all required variables are set.",
-    );
-    process.exit(1);
-  }
-
-  const port = config.port;
+  const port = env.PORT;
 
   app.listen(port, () => {
     console.log("\nOpenReview Server Started");
