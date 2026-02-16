@@ -5,6 +5,8 @@ export interface EnvConfig {
   GITHUB_WEBHOOK_SECRET: string;
   OLLAMA_BASE_URL: string;
   OLLAMA_MODEL: string;
+  GENERATE_CODE_REVIEW_TIMEOUT: number;
+  CHECK_CONNECTION_TIMEOUT: number;
 }
 
 export interface Repository {
