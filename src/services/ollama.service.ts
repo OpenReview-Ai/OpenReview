@@ -26,7 +26,7 @@ export class OllamaService {
           },
         },
         {
-          timeout: 60000,
+          timeout: env.GENERATE_CODE_REVIEW_TIMEOUT,
         },
       );
 
@@ -59,7 +59,7 @@ export class OllamaService {
   async checkConnection(): Promise<boolean> {
     try {
       const response = await axios.get(`${this.baseUrl}/api/tags`, {
-        timeout: 5000,
+        timeout: env.CHECK_CONNECTION_TIMEOUT,
       });
 
       const models = response.data.models || [];
